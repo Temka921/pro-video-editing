@@ -183,7 +183,7 @@ The test suite has 150 tests. Most render real frames or audio and measure the r
 python -m unittest discover -s tests -v
 ```
 
-It takes a few minutes. I developed and ran everything on Windows 10 with Python 3.15 and FFmpeg 9.0. The repository includes a GitHub Actions workflow that runs the tests on Linux; see the Actions tab for its current status. macOS has not been tried. FFmpeg's `amix`, `sidechaincompress` and `alimiter` behave differently across versions, which is why FFmpeg 5 or newer is required.
+It takes a few minutes. I developed and ran everything on Windows 10 with Python 3.15 and FFmpeg 9.0. The repository also has a GitHub Actions workflow that runs the tests on Ubuntu with the FFmpeg package from apt. All 150 tests ran there with none skipped, so a stock Ubuntu FFmpeg is enough, including for stabilization. macOS has not been tried. FFmpeg's `amix`, `sidechaincompress` and `alimiter` behave differently across versions, which is why FFmpeg 5 or newer is required.
 
 Contributions are welcome, especially platform testing, more vocabulary for the sound categories (`VOCAB` in `scripts/sfxlib.py`) and more editing references. Keep scripts to the standard library plus FFmpeg.
 
