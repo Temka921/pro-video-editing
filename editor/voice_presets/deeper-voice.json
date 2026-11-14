@@ -1,0 +1,29 @@
+{
+ "name": "deeper voice",
+ "group": "useful",
+ "source": "isaacverse-voice-presets.prfpset",
+ "effects": [
+  {
+   "effect": "Pitch Shifter",
+   "bypassed": false,
+   "filters": [
+    "asetrate=36171.84",
+    "aresample=48000",
+    "atempo=1.326999"
+   ],
+   "match": "rough",
+   "notes": [
+    "pitch -4.9 semitones, assuming the control spans +-12 semitones; change the numbers in 'chain' to adjust"
+   ],
+   "params": {
+    "Transpose Ratio": 0.295916,
+    "Precision": 1.0,
+    "Frequency": 0.088642,
+    "Overlapping": 0.584326,
+    "Use Default Setting": 0.75,
+    "Use Positive Cents": 0.75
+   }
+  }
+ ],
+ "chain": "asetrate=36171.84,aresample=48000,atempo=1.326999"
+}

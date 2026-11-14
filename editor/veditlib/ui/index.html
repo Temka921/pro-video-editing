@@ -1,0 +1,739 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>vedit editor</title>
+<style>
+:root {
+  --bg: #15171b; --panel: #1d2026; --panel2: #23272f; --line: #2f343e; --text: #e6e8ec; --dim: #9aa1ae;
+  --accent: #5b9dff; --video: #3b6fc4; --image: #2f8f8f; --audio: #3f8f55; --sfx: #8a5bc4; --text-c: #c48a2f;
+  --danger: #e5584f; --ok: #4fb36b;
+}
+* { box-sizing: border-box; }
+html, body { height: 100%; }
+body { margin: 0; background: var(--bg); color: var(--text); font: 13px/1.4 system-ui, -apple-system, "Segoe UI", sans-serif;
+  display: grid; grid-template-rows: auto minmax(0, 1fr) 270px; overflow: hidden; }
+button, input, select { font: inherit; color: inherit; }
+button { background: var(--panel2); border: 1px solid var(--line); border-radius: 6px; padding: 5px 10px; cursor: pointer; }
+button:hover:not(:disabled) { border-color: var(--accent); }
+button:disabled { opacity: .45; cursor: default; }
+button.primary { background: var(--accent); border-color: var(--accent); color: #07101f; font-weight: 600; }
+input[type=text], input[type=number], select { background: var(--bg); border: 1px solid var(--line); border-radius: 5px; padding: 4px 6px; width: 100%; }
+input:focus, select:focus, button:focus-visible { outline: 2px solid var(--accent); outline-offset: 1px; }
+header { display: flex; align-items: center; gap: 10px; padding: 8px 12px; background: var(--panel); border-bottom: 1px solid var(--line); flex-wrap: wrap; }
+header h1 { font-size: 14px; margin: 0; font-weight: 650; }
+header .meta { color: var(--dim); }
+header .spacer { flex: 1; }
+.bar { width: 120px; height: 8px; background: var(--bg); border-radius: 4px; overflow: hidden; border: 1px solid var(--line); }
+.bar > i { display: block; height: 100%; width: 0; background: var(--accent); }
+main { display: grid; grid-template-columns: 270px minmax(0, 1fr) 270px; min-height: 0; }
+aside { background: var(--panel); overflow: auto; padding: 10px; min-height: 0; }
+aside.left { border-right: 1px solid var(--line); }
+aside.right { border-left: 1px solid var(--line); }
+aside h2 { font-size: 11px; text-transform: uppercase; letter-spacing: .06em; color: var(--dim); margin: 14px 0 6px; }
+aside h2:first-child { margin-top: 0; }
+.stage { display: flex; flex-direction: column; align-items: center; justify-content: center; min-width: 0; min-height: 0; padding: 10px; gap: 8px; }
+.stage video { max-width: 100%; max-height: calc(100% - 34px); background: #000; border-radius: 4px; }
+.badge { padding: 2px 8px; border-radius: 10px; font-size: 12px; }
+.badge.stale { background: #5a4616; color: #ffd47a; }
+.badge.fresh { background: #1b4a2b; color: #8be0a8; }
+.badge.none { background: var(--panel2); color: var(--dim); }
+.row { display: flex; gap: 6px; align-items: center; margin-bottom: 6px; }
+.asset { display: flex; align-items: center; gap: 6px; padding: 5px 6px; border: 1px solid var(--line); border-radius: 6px; margin-bottom: 4px; background: var(--panel2); }
+.asset .n { flex: 1; min-width: 0; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+.asset .d { color: var(--dim); font-size: 12px; }
+.drop { border: 1px dashed var(--line); border-radius: 6px; padding: 8px; text-align: center; color: var(--dim); }
+body.dragging .drop { border-color: var(--accent); color: var(--text); }
+.sfx { display: flex; align-items: center; gap: 6px; padding: 4px 6px; border-bottom: 1px solid var(--line); }
+.sfx .n { flex: 1; min-width: 0; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+.hint { color: var(--dim); font-size: 12px; }
+.problem { font-size: 12px; padding: 3px 0; }
+.problem.err { color: var(--danger); } .problem.warn { color: #ffd47a; }
+label.f { display: block; margin-bottom: 8px; }
+label.f > span { display: block; color: var(--dim); font-size: 12px; margin-bottom: 2px; }
+label.chk { display: flex; align-items: center; gap: 6px; margin-bottom: 8px; }
+#timeline-wrap { background: var(--panel); border-top: 1px solid var(--line); display: grid; grid-template-rows: auto minmax(0, 1fr); min-height: 0; }
+.tl-tools { display: flex; align-items: center; gap: 8px; padding: 6px 10px; border-bottom: 1px solid var(--line); flex-wrap: wrap; }
+.tl-tools input[type=range] { width: 110px; }
+#tl { overflow: auto; position: relative; min-height: 0; }
+.tl-inner { position: relative; min-width: 100%; }
+.tl-row { display: flex; height: 52px; border-bottom: 1px solid var(--line); }
+.tl-row.ruler { height: 24px; position: sticky; top: 0; z-index: 4; background: var(--panel); cursor: text; }
+.tl-label { position: sticky; left: 0; z-index: 3; flex: none; width: 64px; padding: 4px 8px; background: var(--panel2); border-right: 1px solid var(--line); color: var(--dim); font-size: 12px; }
+.tl-label small { display: block; font-size: 10px; }
+.lane { position: relative; flex: none; }
+.lane.drop-target { background: rgba(91, 157, 255, .08); }
+.tick { position: absolute; top: 0; height: 100%; border-left: 1px solid var(--line); padding-left: 3px; color: var(--dim); font-size: 10px; pointer-events: none; }
+.clip { position: absolute; top: 4px; bottom: 4px; border-radius: 5px; padding: 2px 8px; overflow: hidden; white-space: nowrap; text-overflow: ellipsis; cursor: grab; border: 1px solid rgba(255,255,255,.18); font-size: 12px; user-select: none; touch-action: none; }
+.clip.c-video { background: var(--video); } .clip.c-image { background: var(--image); } .clip.c-audio { background: var(--audio); }
+.clip.c-sfx { background: var(--sfx); } .clip.c-text { background: var(--text-c); color: #1b1304; }
+.clip.sel { outline: 2px solid #fff; z-index: 2; }
+.clip .h { position: absolute; top: 0; bottom: 0; width: 7px; cursor: ew-resize; }
+.clip .h.l { left: 0; } .clip .h.r { right: 0; }
+.clip .tag { opacity: .8; font-size: 10px; margin-left: 6px; }
+.playhead { position: absolute; top: 0; bottom: 0; width: 2px; background: var(--danger); z-index: 5; pointer-events: none; }
+#toast { position: fixed; right: 12px; bottom: 12px; max-width: 420px; background: #3a1d1d; border: 1px solid var(--danger); padding: 8px 12px; border-radius: 6px; display: none; white-space: pre-wrap; z-index: 20; }
+#toast.ok { background: #1b3a26; border-color: var(--ok); }
+.sec { border-top: 1px solid var(--line); margin-top: 10px; padding-top: 8px; }
+.sec > h3 { font-size: 11px; text-transform: uppercase; letter-spacing: .06em; color: var(--dim); margin: 0 0 6px; font-weight: 600; }
+.kf { display: flex; gap: 4px; align-items: center; margin-bottom: 8px; }
+.kf label { flex: 1; min-width: 0; }
+.kf label > span { display: block; color: var(--dim); font-size: 12px; margin-bottom: 2px; }
+.kf button { padding: 3px 7px; margin-top: 16px; line-height: 1; font-size: 13px; color: var(--dim); }
+.kf button.has { color: var(--accent); }
+.kf button.on { background: var(--accent); color: #07101f; border-color: var(--accent); }
+.two { display: grid; grid-template-columns: 1fr 1fr; gap: 6px; }
+.card { border: 1px solid var(--line); border-radius: 8px; padding: 8px; margin-bottom: 8px; background: var(--panel2); }
+.card .hint { margin-bottom: 6px; }
+.chip { display: inline-flex; gap: 4px; align-items: center; background: var(--panel2); border: 1px solid var(--line); border-radius: 12px; padding: 1px 4px 1px 8px; margin: 0 4px 4px 0; font-size: 12px; cursor: pointer; }
+.chip button { border: 0; background: transparent; padding: 0 4px; color: var(--dim); }
+.kd { position: absolute; bottom: 2px; width: 7px; height: 7px; background: #fff; border: 1px solid #000; transform: rotate(45deg); margin-left: -3px; z-index: 1; pointer-events: none; }
+.wf { position: absolute; inset: 0; background-repeat: no-repeat; opacity: .5; pointer-events: none; mix-blend-mode: screen; }
+.clip .th { position: absolute; left: 0; top: 0; height: 100%; width: 54px; object-fit: cover; pointer-events: none; border-right: 1px solid rgba(0,0,0,.4); }
+.clip .lab { position: relative; z-index: 1; text-shadow: 0 1px 2px rgba(0,0,0,.6); }
+.tl-label .tb { display: flex; gap: 2px; margin-top: 2px; }
+.tl-label .tb button { padding: 0 4px; font-size: 10px; line-height: 15px; border-radius: 3px; }
+.tl-label .tb button.on { background: var(--danger); border-color: var(--danger); color: #fff; }
+@media (max-width: 900px) { main { grid-template-columns: 200px minmax(0, 1fr) 200px; } }
+</style>
+</head>
+<body>
+<header>
+  <h1 id="title">vedit</h1>
+  <span class="meta" id="meta"></span>
+  <span class="spacer"></span>
+  <span id="job"></span>
+  <button id="undo" title="Ctrl+Z">Undo</button>
+  <button id="rprev" class="primary">Render preview</button>
+  <button id="rfinal">Export</button>
+  <a id="dl" href="#" style="display:none" download>final.mp4</a>
+</header>
+
+<main>
+  <aside class="left">
+    <h2>Media</h2>
+    <div id="assets"></div>
+    <div class="row"><input type="text" id="path" placeholder="Path to a video, audio or image file"><button id="imp">Import</button></div>
+    <div class="drop">Drop files here to upload<br><input type="file" id="file" multiple style="margin-top:6px;width:100%"></div>
+    <h2>Text</h2>
+    <div class="row"><input type="text" id="txt" placeholder="Title or caption"><button id="addtxt">Add</button></div>
+    <div class="hint">Added at the playhead, 3 seconds long.</div>
+    <h2>Sound effects</h2>
+    <input type="text" id="sfxq" placeholder="Search: whoosh, door slam, typewriter">
+    <div id="sfxres"></div>
+    <h2>Captions</h2>
+    <input type="file" id="srt" accept=".srt,.vtt,text/vtt" style="width:100%">
+    <div class="hint">Each subtitle becomes a text clip.</div>
+    <h2>Project</h2>
+    <label class="f"><span>Canvas</span><select id="canvas"></select></label>
+    <label class="f"><span>Final loudness (LUFS), blank = untouched</span><input type="number" id="lufs" placeholder="e.g. -14" step="1" min="-40" max="-5"></label>
+    <h2>Checks</h2>
+    <div id="problems" class="hint">No problems found.</div>
+  </aside>
+
+  <section class="stage">
+    <video id="pv" controls preload="auto"></video>
+    <div><span class="badge none" id="fresh">No preview yet</span></div>
+  </section>
+
+  <aside class="right">
+    <h2>Selected clip</h2>
+    <div id="insp" class="hint">Click a clip in the timeline.</div>
+  </aside>
+</main>
+
+<div id="timeline-wrap">
+  <div class="tl-tools">
+    <button id="split" title="S">Split at playhead</button>
+    <button id="del" title="Delete">Delete</button>
+    <label class="chk" style="margin:0"><input type="checkbox" id="ripple"> Close gap</label>
+    <span class="spacer" style="flex:1"></span>
+    <button id="fit">Fit</button>
+    <span class="hint">Zoom</span><input type="range" id="zoom" min="10" max="400" value="60">
+    <span class="hint" id="clock">0:00.000</span>
+  </div>
+  <div id="tl"><div class="tl-inner" id="inner"></div></div>
+</div>
+<div id="toast" role="status"></div>
+
+<script>
+"use strict";
+const S = { proj: null, presets: [], problems: { errors: [], warnings: [] }, renders: {}, job: { state: "idle" },
+            sel: null, pps: 60, playhead: 0, busy: false, dragging: false, sfxToken: 0, meta: null };
+const $ = (id) => document.getElementById(id);
+const pv = $("pv");
+
+function h(tag, props, ...kids) {
+  const e = document.createElement(tag);
+  for (const [k, v] of Object.entries(props || {})) {
+    if (k === "class") e.className = v; else if (k.startsWith("on")) e.addEventListener(k.slice(2), v);
+    else if (k === "style") e.style.cssText = v; else if (v !== false && v != null) e.setAttribute(k, v === true ? "" : v);
+  }
+  for (const kid of kids.flat()) if (kid != null) e.append(kid.nodeType ? kid : document.createTextNode(kid));
+  return e;
+}
+function toast(msg, ok) {
+  const t = $("toast"); t.textContent = msg; t.className = ok ? "ok" : ""; t.style.display = "block";
+  clearTimeout(toast.t); toast.t = setTimeout(() => (t.style.display = "none"), ok ? 2500 : 9000);
+}
+const fmt = (s) => { s = Math.max(0, s); const m = Math.floor(s / 60); return m + ":" + (s - m * 60).toFixed(3).padStart(6, "0"); };
+
+async function api(path, body, raw) {
+  const opts = body === undefined ? {} : { method: "POST", headers: { "X-Vedit": "1", ...(raw ? {} : { "Content-Type": "application/json" }) },
+                                          body: raw ? body : JSON.stringify(body) };
+  const r = await fetch(path, opts);
+  const data = await r.json().catch(() => ({ error: "bad response" }));
+  if (!r.ok) throw new Error(data.error || r.statusText);
+  return data;
+}
+async function edit(steps, quiet) {
+  try {
+    const r = await api("/api/op", { steps });
+    await refresh(true);
+    const warn = r.results.map((x) => x && x.warning).find(Boolean);
+    if (warn) toast(warn);
+    return r.results;
+  } catch (e) { toast(e.message); await refresh(true); }
+}
+
+/* ------------------------------------------------------------------ state */
+async function refresh(force) {
+  try {
+    const since = !force && S.proj ? S.proj.rev : "";
+    let d = await api("/api/state?since=" + since);
+    if (d.unchanged) {
+      if (JSON.stringify(d.job) === JSON.stringify(S.job)) return;
+      d = await api("/api/state");
+    }
+    S.proj = d.project; S.presets = d.presets; S.problems = d.problems; S.renders = d.renders; S.job = d.job; S.meta = d.meta;
+    $("title").textContent = d.name;
+    if (S.sel && !S.proj.clips.find((c) => c.id === S.sel)) S.sel = null;
+    if (!S.dragging) draw();
+  } catch (e) { /* server stopped or still starting: try again on the next poll */ }
+}
+
+/* ------------------------------------------------------------------ drawing */
+const assetOf = (c) => (c.asset ? S.proj.assets[c.asset] : null);
+function kindOf(c) { return c.type === "text" ? "text" : c.sfx ? "sfx" : assetOf(c).kind === "audio" ? "audio" : assetOf(c).kind === "image" ? "image" : "video"; }
+function hasSound(c) { const a = assetOf(c); return a && (a.kind === "audio" || a.has_audio); }
+
+function draw() { drawHeader(); drawAssets(); drawTimeline(); drawInspector(); drawProblems(); drawPreview(); drawProject(); }
+
+function drawProject() {
+  const s = S.proj.settings, sel = $("canvas"), presets = S.meta ? S.meta.canvas_presets : {};
+  const match = Object.entries(presets).find(([, v]) => v[0] === s.width && v[1] === s.height && v[2] === s.fps);
+  if (document.activeElement !== sel) {
+    sel.replaceChildren(h("option", { value: "", selected: !match }, `${s.width}x${s.height} @ ${s.fps} (current)`),
+      ...Object.entries(presets).map(([k, v]) => h("option", { value: k, selected: !!match && match[0] === k }, `${k}: ${v[0]}x${v[1]} @ ${v[2]}`)));
+  }
+  if (document.activeElement !== $("lufs")) $("lufs").value = s.master_lufs ?? "";
+}
+
+function drawHeader() {
+  const s = S.proj.settings;
+  $("meta").textContent = `${s.width}x${s.height} · ${s.fps} fps · ${fmt(S.proj.duration)} · rev ${S.proj.rev}`;
+  const j = S.job, box = $("job"); box.replaceChildren();
+  if (j.state === "running") box.append(h("span", { class: "hint" }, j.preview ? "Rendering preview " : "Exporting "), h("span", { class: "bar" }, h("i", { style: `width:${Math.round((j.progress || 0) * 100)}%` })));
+  if (j.state === "error") box.append(h("span", { class: "badge stale", title: j.message }, "Render failed: " + j.message.split("\n")[0].slice(0, 70)));
+  $("rprev").disabled = $("rfinal").disabled = j.state === "running";
+  const f = S.renders.final;
+  $("dl").style.display = f ? "" : "none";
+  if (f) $("dl").href = "/out/final.mp4?v=" + f.mtime;
+}
+
+function drawAssets() {
+  const box = $("assets"); box.replaceChildren();
+  const ids = Object.keys(S.proj.assets);
+  if (!ids.length) box.append(h("div", { class: "hint", style: "margin-bottom:6px" }, "No media yet. Import a file below."));
+  for (const id of ids) {
+    const a = S.proj.assets[id];
+    box.append(h("div", { class: "asset" },
+      h("span", { class: "n", title: a.path }, a.name),
+      h("span", { class: "d" }, a.kind === "image" ? "image" : a.duration.toFixed(1) + "s"),
+      h("button", { title: "Add to the end of the timeline", onclick: () => edit([{ op: "add", asset: id }]) }, "+")));
+  }
+}
+
+function tickStep() { return [0.1, 0.2, 0.5, 1, 2, 5, 10, 30, 60, 120, 300].find((s) => s * S.pps >= 70) || 600; }
+const GUTTER = 64;
+
+function drawTimeline() {
+  const P = S.proj, width = Math.max((P.duration + 15) * S.pps, 600);
+  const inner = $("inner"); const sx = $("tl").scrollLeft, sy = $("tl").scrollTop;
+  inner.replaceChildren(); inner.style.width = width + GUTTER + "px";
+  const ruler = h("div", { class: "lane", style: `width:${width}px` });
+  const step = tickStep();
+  for (let t = 0; t * S.pps < width; t += step) ruler.append(h("div", { class: "tick", style: `left:${t * S.pps}px` }, fmt(t).replace(/\.?0+$/, "")));
+  ruler.addEventListener("pointerdown", (e) => scrubFrom(e, ruler));
+  inner.append(h("div", { class: "tl-row ruler" }, h("div", { class: "tl-label" }), ruler));
+  const vt = P.tracks.filter((t) => t.kind === "video").reverse(), at = P.tracks.filter((t) => t.kind === "audio");
+  for (const t of [...vt, ...at]) {
+    const lane = h("div", { class: "lane", "data-track": t.id, style: `width:${width}px` });
+    lane.addEventListener("pointerdown", (e) => { if (e.target === lane) { S.sel = null; scrubFrom(e, lane); drawInspector(); markSel(); } });
+    for (const c of P.clips.filter((c) => c.track === t.id)) lane.append(clipEl(c));
+    const toggle = (flag, letter, title) => h("button", { class: t[flag] ? "on" : "", title, onclick: () => edit([{ op: "set_track", id: t.id, [flag]: !t[flag] }]) }, letter);
+    const tb = h("div", { class: "tb" }, toggle("mute", "M", "Mute this track's sound"), t.kind === "video" ? toggle("hide", "H", "Hide this track's picture") : null);
+    inner.append(h("div", { class: "tl-row" }, h("div", { class: "tl-label" }, t.id, h("small", {}, t.duck ? "ducks" : t.kind), tb), lane));
+  }
+  inner.append(h("div", { class: "playhead", id: "ph" }));
+  $("tl").scrollLeft = sx; $("tl").scrollTop = sy;
+  placePlayhead();
+}
+function clipEl(c) {
+  const k = kindOf(c), a = assetOf(c), pic = k === "video" || k === "image";
+  const label = c.type === "text" ? c.text : (c.note && c.sfx ? a.name.replace(/\.wav$/, "") : a.name);
+  const tags = [];
+  if (c.preset) tags.push(c.preset); if (c.speed && c.speed !== 1) tags.push("x" + c.speed); if (c.mute) tags.push("muted");
+  if (c.color) tags.push("graded"); if (c.transition) tags.push(c.transition.type);
+  if (c.reverse) tags.push("reversed"); if (c.hold) tags.push("frozen"); if (c.stabilize) tags.push("stabilized");
+  if ((c.keys || {}).speed) tags.push("ramp"); if ((c.masks || []).length) tags.push(c.masks.length + " mask" + (c.masks.length > 1 ? "s" : ""));
+  const kids = [];
+  if (hasSound(c) && !c.mute) {  // the waveform covers the whole source; slide it so the trimmed part shows
+    const speed = c.speed || 1, w = a.duration / speed * S.pps;
+    kids.push(h("div", { class: "wf", style: `background-image:url(/api/wave?asset=${c.asset});background-size:${w}px 100%;background-position:${-(c.src_in || 0) / speed * S.pps}px 0` }));
+  }
+  if (pic && c.dur * S.pps > 70) kids.push(h("img", { class: "th", src: `/api/thumb?asset=${c.asset}`, alt: "", draggable: "false" }));
+  for (const [prop, pts] of Object.entries(c.keys || {})) for (const p of pts)
+    kids.push(h("span", { class: "kd", title: `${prop} = ${+p[1].toFixed(3)} at ${fmt(c.start + p[0])}`, style: `left:${p[0] * S.pps}px` }));
+  const el = h("div", { class: `clip c-${k}` + (c.id === S.sel ? " sel" : ""), "data-id": c.id, title: `${c.id}: ${label}\n${fmt(c.start)} to ${fmt(c.start + c.dur)}`,
+                        style: `left:${c.start * S.pps}px;width:${Math.max(4, c.dur * S.pps)}px` },
+    kids, h("span", { class: "h l" }),
+    h("span", { class: "lab", style: pic && c.dur * S.pps > 70 ? "margin-left:54px" : "" }, label, tags.length ? h("span", { class: "tag" }, tags.join(" · ")) : null),
+    h("span", { class: "h r" }));
+  el.addEventListener("pointerdown", (e) => clipDown(e, c, el));
+  return el;
+}
+function markSel() { document.querySelectorAll(".clip").forEach((e) => e.classList.toggle("sel", e.dataset.id === S.sel)); }
+let lastInspect = 0;
+function placePlayhead() {
+  const ph = $("ph"); if (!ph) return;
+  ph.style.left = GUTTER + S.playhead * S.pps + "px";
+  $("clock").textContent = fmt(S.playhead);
+  // Keyframed values change with the playhead; refresh them (at most 4 times a second, never while typing).
+  const c = S.proj && S.proj.clips.find((x) => x.id === S.sel);
+  const typing = /^(INPUT|SELECT)$/.test(document.activeElement.tagName) && document.activeElement.closest("#insp");
+  if (c && c.keys && !typing && Date.now() - lastInspect > 250) { lastInspect = Date.now(); drawInspector(); }
+}
+
+/* ------------------------------------------------------------------ dragging */
+function snapPoints(excludeId) {
+  const pts = [0, S.playhead];
+  for (const c of S.proj.clips) if (c.id !== excludeId) pts.push(c.start, c.start + c.dur);
+  return pts;
+}
+function snap(t, pts) {
+  const tol = 8 / S.pps; let best = t, d = tol;
+  for (const p of pts) if (Math.abs(p - t) < d) { d = Math.abs(p - t); best = p; }
+  return best;
+}
+function laneAt(y) {
+  for (const l of document.querySelectorAll(".lane[data-track]")) { const r = l.getBoundingClientRect(); if (y >= r.top && y <= r.bottom) return l; }
+  return null;
+}
+function clipDown(e, c, el) {
+  if (e.button !== 0) return;
+  e.stopPropagation(); S.sel = c.id; markSel(); drawInspector();
+  const x0 = e.clientX, rect = el.getBoundingClientRect(), edge = 8;
+  const mode = e.clientX - rect.left < edge ? "l" : rect.right - e.clientX < edge ? "r" : "m";
+  const start0 = c.start, end0 = c.start + c.dur, pts = snapPoints(c.id);
+  let cur = { start: start0, end: end0, track: c.track }, moved = false;
+  S.dragging = true; el.setPointerCapture(e.pointerId);
+  const move = (ev) => {
+    const dt = (ev.clientX - x0) / S.pps; if (Math.abs(ev.clientX - x0) > 2) moved = true;
+    if (mode === "m") {
+      let s = Math.max(0, start0 + dt); const sn = snap(s, pts), en = snap(s + c.dur, pts) - c.dur;
+      s = Math.abs(sn - s) <= Math.abs(en - s) ? sn : en; cur.start = Math.max(0, s); cur.end = cur.start + c.dur;
+      const lane = laneAt(ev.clientY); if (lane) { cur.track = lane.dataset.track; if (lane !== el.parentNode) { lane.append(el); } }
+    } else if (mode === "l") { cur.start = Math.min(end0 - 0.04, Math.max(0, snap(start0 + dt, pts))); }
+    else { cur.end = Math.max(start0 + 0.04, snap(end0 + dt, pts)); }
+    el.style.left = cur.start * S.pps + "px"; el.style.width = Math.max(4, (cur.end - cur.start) * S.pps) + "px";
+  };
+  const up = async () => {
+    el.removeEventListener("pointermove", move); el.removeEventListener("pointerup", up); el.removeEventListener("pointercancel", up);
+    S.dragging = false;
+    if (!moved) return;
+    const r4 = (x) => Math.round(x * 10000) / 10000;
+    if (mode === "m") await edit([{ op: "move", clip: c.id, at: r4(cur.start), track: cur.track }]);
+    else await edit([{ op: "trim", clip: c.id, start: r4(cur.start), end: r4(cur.end) }]);
+  };
+  el.addEventListener("pointermove", move); el.addEventListener("pointerup", up); el.addEventListener("pointercancel", up);
+}
+function scrubFrom(e, lane) {
+  const seek = (ev) => { const x = ev.clientX - lane.getBoundingClientRect().left; setPlayhead(Math.max(0, x / S.pps), true); };
+  seek(e); lane.setPointerCapture(e.pointerId);
+  const mv = (ev) => seek(ev), up = () => { lane.removeEventListener("pointermove", mv); lane.removeEventListener("pointerup", up); };
+  lane.addEventListener("pointermove", mv); lane.addEventListener("pointerup", up);
+}
+function setPlayhead(t, seekVideo) {
+  S.playhead = Math.min(Math.max(0, t), S.proj ? S.proj.duration : t); placePlayhead();
+  if (seekVideo && pv.readyState > 0) pv.currentTime = S.playhead;
+}
+pv.addEventListener("timeupdate", () => { if (!pv.paused || Math.abs(pv.currentTime - S.playhead) > 0.04) { S.playhead = pv.currentTime; placePlayhead(); } });
+pv.addEventListener("play", function loop() { if (!pv.paused) { S.playhead = pv.currentTime; placePlayhead(); requestAnimationFrame(loop); } });
+
+/* ------------------------------------------------------------------ inspector */
+const COLOR_KEYS = new Set(["brightness", "contrast", "saturation", "gamma"]);
+const SHAPE = { linear: (u) => u, in: (u) => u * u, out: (u) => 1 - (1 - u) ** 2, inout: (u) => u * u * (3 - 2 * u), hold: () => 0 };
+function valueAt(pts, t) {  // mirrors editor/veditlib/keys.py so the fields show what the render will do
+  if (t <= pts[0][0]) return pts[0][1];
+  for (let i = 0; i < pts.length - 1; i++) {
+    const a = pts[i], b = pts[i + 1];
+    if (t < b[0]) return a[1] + (b[1] - a[1]) * SHAPE[a[2] || "linear"]((t - a[0]) / (b[0] - a[0]));
+  }
+  return pts[pts.length - 1][1];
+}
+const MASK_PROP = /^(m\d+)\.([xywh])$/;
+const propSpec = (prop) => { const m = MASK_PROP.exec(prop); return m ? S.meta.mask_ranges[m[2]] : S.meta.keyprops[prop]; };
+const keyDefault = (prop) => propSpec(prop)[0];
+function baseValue(c, prop) {
+  const m = MASK_PROP.exec(prop);
+  if (m) { const mask = (c.masks || []).find((x) => x.id === m[1]); return mask ? mask[m[2]] : keyDefault(prop); }
+  return (COLOR_KEYS.has(prop) ? (c.color || {})[prop] : c[prop]) ?? keyDefault(prop);
+}
+const currentValue = (c, prop) => { const pts = (c.keys || {})[prop]; return pts ? valueAt(pts, S.playhead - c.start) : baseValue(c, prop); };
+const keyAtPlayhead = (c, prop) => ((c.keys || {})[prop] || []).find((p) => Math.abs(c.start + p[0] - S.playhead) < 0.04);
+const inClip = (c) => S.playhead >= c.start - 0.001 && S.playhead <= c.start + c.dur + 0.001;
+const rnd = (x) => Math.round(x * 1000) / 1000;
+
+function section(title, ...kids) { return h("div", { class: "sec" }, h("h3", {}, title), ...kids); }
+function field(label, input) { return h("label", { class: "f" }, h("span", {}, label), input); }
+function plain(c, key, label, min, step) {  // an ordinary number field
+  const i = h("input", { type: "number", value: c[key] ?? 0, min, step: step || "0.01" });
+  i.addEventListener("change", () => edit([{ op: "set", clip: c.id, [key]: i.value }]));
+  return field(label, i);
+}
+function selectField(label, opts, value, onchange) {
+  const s = h("select", {}, opts.map(([v, text]) => h("option", { value: v, selected: v === value }, text)));
+  s.addEventListener("change", () => onchange(s.value));
+  return field(label, s);
+}
+function colorField(c, prop, label, min, max, step) {  // a steady grade value (not keyframeable)
+  const i = h("input", { type: "number", value: (c.color || {})[prop] ?? S.meta.color_fields[prop][0], min, max, step });
+  i.addEventListener("change", () => edit([{ op: "grade", clip: c.id, [prop]: parseFloat(i.value) }]));
+  return field(label, i);
+}
+function kfField(c, prop, label, step) {  // a number that can be animated with keyframes
+  const [, lo, hi] = propSpec(prop), pts = (c.keys || {})[prop], at = keyAtPlayhead(c, prop);
+  const i = h("input", { type: "number", value: rnd(currentValue(c, prop)), min: lo, max: hi, step: step || "0.05" });
+  i.addEventListener("change", () => {
+    const v = parseFloat(i.value);
+    if (pts) {  // already animated: typing a value sets a keyframe at the playhead
+      if (!inClip(c)) { toast("Move the playhead inside the clip to edit its keyframes."); return refresh(true); }
+      return edit([{ op: "key", clip: c.id, prop, at: rnd(S.playhead), value: v }]);
+    }
+    const mm = MASK_PROP.exec(prop);
+    return edit([mm ? { op: "mask", clip: c.id, id: mm[1], [mm[2]]: v }
+      : COLOR_KEYS.has(prop) ? { op: "grade", clip: c.id, [prop]: v } : { op: "set", clip: c.id, [prop]: v }]);
+  });
+  const btn = h("button", {
+    class: at ? "on" : pts ? "has" : "",
+    title: at ? "Remove the keyframe at the playhead" : "Add a keyframe at the playhead (animate this value)",
+    onclick: () => {
+      if (!inClip(c)) return toast("Move the playhead inside the clip first.");
+      if (at) return edit([{ op: "unkey", clip: c.id, prop, at: rnd(c.start + at[0]) }]);
+      edit([{ op: "key", clip: c.id, prop, at: rnd(S.playhead), value: parseFloat(i.value) }]);
+    },
+  }, "◆");
+  return h("div", { class: "kf" }, h("label", {}, h("span", {}, label), i), btn);
+}
+
+function maskCard(c, m, trackers) {
+  const num = (key, label, min, max, step) => {
+    const i = h("input", { type: "number", value: rnd(m[key]), min, max, step });
+    i.addEventListener("change", () => edit([{ op: "mask", clip: c.id, id: m.id, [key]: parseFloat(i.value) }]));
+    return field(label, i);
+  };
+  const inv = h("input", { type: "checkbox", checked: !!m.invert });
+  inv.addEventListener("change", () => edit([{ op: "mask", clip: c.id, id: m.id, invert: inv.checked }]));
+  const kids = [
+    h("div", { class: "hint" }, `Mask ${m.id}`),
+    h("div", { class: "two" },
+      selectField("Shape", S.meta.mask_shapes.map((v) => [v, v]), m.shape, (v) => edit([{ op: "mask", clip: c.id, id: m.id, shape: v }])),
+      selectField("Effect", S.meta.mask_effects.map((v) => [v, v === "none" ? "show only inside" : v]), m.effect, (v) => edit([{ op: "mask", clip: c.id, id: m.id, effect: v }]))),
+    h("div", { class: "two" }, kfField(c, `${m.id}.x`, "Centre X"), kfField(c, `${m.id}.y`, "Centre Y")),
+    h("div", { class: "two" }, kfField(c, `${m.id}.w`, "Width"), kfField(c, `${m.id}.h`, "Height")),
+    h("div", { class: "two" }, num("feather", "Soft edge", 0, 1, 0.05), m.effect === "none" ? h("div") : num("amount", "Strength", 0, 1, 0.05)),
+    h("label", { class: "chk" }, inv, "Apply outside the shape"),
+  ];
+  if (trackers.length) {
+    const sel = h("select", {}, trackers.map((t) => h("option", { value: t }, t)));
+    kids.push(h("div", { class: "two" }, field("Follow tracker", sel),
+      h("button", { style: "margin-top:16px", onclick: () => edit([{ op: "follow", clip: c.id, mask: m.id, tracker: sel.value }]) }, "Follow")));
+  }
+  kids.push(h("button", { onclick: () => edit([{ op: "unmask", clip: c.id, id: m.id }]) }, "Remove mask"));
+  return h("div", { class: "card" }, ...kids);
+}
+
+// Where the picture sits on the canvas, as the renderer places it (see masks.layout); used to turn a click on the preview into a spot on the picture.
+function pictureRect(c) {
+  const a = assetOf(c), W = S.proj.settings.width, H = S.proj.settings.height;
+  let sw = a.width, sh = a.height;
+  const box = c.box;
+  if (box) {
+    const bw = box[2] * W, bh = box[3] * H, s = Math.min(bw / sw, bh / sh), pw = sw * s, ph = sh * s;
+    return { x0: box[0] * W + (bw - pw) / 2, y0: box[1] * H + (bh - ph) / 2, pw, ph, W, H };
+  }
+  const s = (c.fit || "contain") === "cover" ? Math.max(W / sw, H / sh) : Math.min(W / sw, H / sh), pw = sw * s, ph = sh * s;
+  return { x0: (W - pw) / 2, y0: (H - ph) / 2, pw, ph, W, H };
+}
+
+function pickOnPreview(c) {  // the next click on the preview chooses the spot to track
+  const r = pv.getBoundingClientRect();
+  if (!r.width || !r.height) return toast("The preview is not showing yet. Render a preview first, then pick.");
+  const shield = h("div", { style: `position:fixed;left:${r.left}px;top:${r.top}px;width:${r.width}px;height:${r.height - 40}px;cursor:crosshair;z-index:30;outline:2px dashed var(--accent)` });
+  shield.addEventListener("click", (e) => {
+    const g = pictureRect(c), scale = Math.min(r.width / g.W, r.height / g.H);
+    const vw = g.W * scale, vh = g.H * scale, ox = (r.width - vw) / 2, oy = (r.height - vh) / 2;
+    const X = (e.clientX - r.left - ox) / vw * g.W, Y = (e.clientY - r.top - oy) / vh * g.H;
+    const sx = (X - g.x0) / g.pw, sy = (Y - g.y0) / g.ph;
+    if (!Number.isFinite(sx) || !Number.isFinite(sy)) { shield.remove(); return toast("Could not read the click position. Try again."); }
+    S.pick = { x: Math.min(1, Math.max(0, rnd(sx))), y: Math.min(1, Math.max(0, rnd(sy))) };
+    shield.remove(); drawInspector(); toast(`Picked ${S.pick.x}, ${S.pick.y} of the picture`, true);
+  });
+  document.body.append(shield);
+  toast("Click the thing to follow in the preview (it must match the current edit).", true);
+}
+
+function trackingSection(c) {
+  const pick = S.pick || { x: 0.5, y: 0.5 };
+  const num = (v, min, max, step) => h("input", { type: "number", value: v, min, max, step });
+  const x = num(pick.x, 0, 1, 0.01), y = num(pick.y, 0, 1, 0.01), size = num(0.08, 0.02, 0.5, 0.01);
+  const list = Object.entries(S.proj.trackers || {}).map(([id, t]) =>
+    h("span", { class: "chip", title: `Followed ${Math.round((t.found || 0) * 100)}% of the footage` }, `${id} (${Math.round((t.found || 0) * 100)}%)`,
+      h("button", { title: "Delete this tracker", onclick: () => edit([{ op: "remove_tracker", id }]) }, "×")));
+  return section("Motion tracking",
+    h("div", { class: "hint", style: "margin-bottom:6px" }, "Pick something with detail (a face, a sign). The tracker follows it through this clip."),
+    h("button", { onclick: () => pickOnPreview(c) }, "Pick on preview"),
+    h("div", { class: "two", style: "margin-top:6px" }, field("X (0 to 1)", x), field("Y (0 to 1)", y)),
+    field("Patch size (fraction of height)", size),
+    h("button", { class: "primary", onclick: async () => {
+      if (!inClip(c)) return toast("Move the playhead inside the clip, on the frame where you are pointing.");
+      toast("Tracking... this can take a few seconds.", true);
+      const r = await edit([{ op: "track", clip: c.id, at: rnd(S.playhead), x: parseFloat(x.value), y: parseFloat(y.value), size: parseFloat(size.value) }]);
+      if (r) toast(`Tracker ${r[0].tracker} followed ${Math.round(r[0].found * 100)}% of the footage`, true);
+    } }, "Track from the playhead"),
+    h("div", { style: "margin-top:6px" }, ...list));
+}
+
+function attachSection(c) {
+  const sel = h("select", {}, Object.keys(S.proj.trackers).map((t) => h("option", { value: t }, t)));
+  return section("Follow a tracker",
+    field("Tracker", sel),
+    h("button", { onclick: () => edit([{ op: "attach", clip: c.id, tracker: sel.value }]) }, "Attach to the tracked point"),
+    h("div", { class: "hint", style: "margin-top:4px" }, "This title or overlay will move with the tracked point."));
+}
+
+function drawInspector() {
+  const box = $("insp"); box.replaceChildren(); box.className = "";
+  const c = S.proj && S.proj.clips.find((x) => x.id === S.sel);
+  if (!c || !S.meta) { box.className = "hint"; box.textContent = "Click a clip in the timeline."; return; }
+  const a = assetOf(c), track = S.proj.tracks.find((t) => t.id === c.track);
+  const isText = c.type === "text", picture = !isText && track.kind === "video";
+  box.append(h("div", { class: "hint", style: "margin-bottom:8px" }, `${c.id} on ${c.track}` + (a ? " · " + a.name : "")));
+  box.append(h("div", { class: "two" }, plain(c, "start", "Start (s)", 0), plain(c, "dur", "Length (s)", 0.04)));
+
+  if (isText) {
+    const t = h("input", { type: "text", value: c.text }); t.addEventListener("change", () => edit([{ op: "set", clip: c.id, text: t.value }]));
+    const col = h("input", { type: "text", value: c.color || "white" }); col.addEventListener("change", () => edit([{ op: "set", clip: c.id, color: col.value }]));
+    box.append(section("Text", field("Text", t), h("div", { class: "two" }, plain(c, "size", "Size (px)", 8, "1"), field("Colour", col)),
+      selectField("Position", [["top", "top"], ["center", "center"], ["bottom", "bottom"]], c.pos || "bottom", (v) => edit([{ op: "set", clip: c.id, pos: v }]))));
+  }
+  if (isText || picture) {
+    const rows = [];
+    if (picture) rows.push(kfField(c, "scale", "Zoom (1 = fit)"), kfField(c, "rotation", "Rotation (deg)", "1"));
+    rows.push(h("div", { class: "two" }, kfField(c, "x", "X shift"), kfField(c, "y", "Y shift")), kfField(c, "opacity", "Opacity"));
+    if (picture) rows.push(h("div", { class: "two" },
+      selectField("Fit", [["contain", "contain"], ["cover", "cover"]], c.fit || "contain", (v) => edit([{ op: "set", clip: c.id, fit: v }])),
+      selectField("Flip", [["none", "none"], ["h", "horizontal"], ["v", "vertical"], ["hv", "both"]], c.flip || "none", (v) => edit([{ op: "set", clip: c.id, flip: v }]))));
+    box.append(section("Transform", ...rows));
+  }
+  if (picture) {
+    const ck = c.chromakey;
+    const en = h("input", { type: "checkbox", checked: !!ck });
+    en.addEventListener("change", () => edit([{ op: "set", clip: c.id, chromakey: en.checked ? "green" : "none" }]));
+    const keyBox = h("div", {});
+    if (ck) {
+      const cc = h("input", { type: "text", value: ck.color });
+      cc.addEventListener("change", () => edit([{ op: "set", clip: c.id, chromakey: `${cc.value},${ck.similarity},${ck.blend}` }]));
+      const sim = h("input", { type: "number", value: ck.similarity, min: 0.01, max: 1, step: 0.01 });
+      sim.addEventListener("change", () => edit([{ op: "set", clip: c.id, chromakey: `${ck.color},${sim.value},${ck.blend}` }]));
+      keyBox.append(h("div", { class: "two" }, field("Colour", cc), field("Tolerance", sim)));
+    }
+    const lut = h("input", { type: "text", value: (c.color || {}).lut || "", placeholder: "path to a .cube file" });
+    lut.addEventListener("change", () => edit([{ op: "grade", clip: c.id, lut: lut.value.trim() || "none" }]));
+    box.append(
+      section("Color",
+        selectField("Look", [["none", "none"], ...Object.keys(S.meta.looks).map((k) => [k, k])], (c.color || {}).look || "none",
+          (v) => edit([{ op: "grade", clip: c.id, look: v }])),
+        h("div", { class: "two" }, kfField(c, "brightness", "Brightness"), kfField(c, "contrast", "Contrast")),
+        h("div", { class: "two" }, kfField(c, "saturation", "Saturation"), kfField(c, "gamma", "Gamma")),
+        h("div", { class: "two" }, colorField(c, "temperature", "Warmth", -1, 1, 0.05), colorField(c, "tint", "Tint", -1, 1, 0.05)),
+        h("div", { class: "two" }, colorField(c, "vignette", "Vignette", 0, 1, 0.05), colorField(c, "sharpen", "Sharpen", 0, 1, 0.05)),
+        colorField(c, "blur", "Blur", 0, 50, 0.5), field("LUT", lut),
+        h("button", { onclick: () => edit([{ op: "grade", clip: c.id, reset: true }]) }, "Reset color")),
+      section("Green screen", h("label", { class: "chk" }, en, "Remove a background colour"), keyBox));
+  }
+  if (hasSound(c)) {
+    const parts = [kfField(c, "volume_db", "Volume (dB)", "1"),
+      selectField("Voice preset", [["none", "none"], ...S.presets.map((p) => [p, p])],
+        S.presets.find((p) => c.preset && p.toLowerCase() === c.preset.toLowerCase()) || "none", (v) => edit([{ op: "set", clip: c.id, preset: v }]))];
+    if (track.kind === "video") {
+      const m = h("input", { type: "checkbox", checked: !!c.mute });
+      m.addEventListener("change", () => edit([{ op: "set", clip: c.id, mute: m.checked }]));
+      parts.push(h("label", { class: "chk" }, m, "Mute this clip's sound"));
+    }
+    box.append(section("Sound", ...parts));
+  }
+  const timing = [h("div", { class: "two" }, plain(c, "fade_in", "Fade in (s)", 0), plain(c, "fade_out", "Fade out (s)", 0))];
+  const videoFile = picture && a && a.kind === "video" && !c.hold;
+  if (videoFile) timing.push(kfField(c, "speed", "Speed (add keyframes for a ramp)", "0.1"));
+  else if (c.asset && a.kind !== "image" && !c.hold) timing.push(plain(c, "speed", "Speed", 0.25, "0.05"));
+  box.append(section("Timing", ...timing));
+  if ((c.keys || {}).speed && hasSound(c) && !c.mute) box.append(h("div", { class: "hint" }, "A speed ramp mutes this clip's own sound; put music or effects on an audio track."));
+
+  if (!isText) {  // reverse, freeze, stabilize
+    const tools = [];
+    if (c.hold) tools.push(h("div", { class: "hint" }, "A frozen frame: the picture is held and there is no sound."));
+    else {
+      const rev = h("input", { type: "checkbox", checked: !!c.reverse });
+      rev.addEventListener("change", () => edit([{ op: "set", clip: c.id, reverse: rev.checked }]));
+      tools.push(h("label", { class: "chk" }, rev, "Play backwards"));
+    }
+    if (videoFile) {
+      const fd = h("input", { type: "number", value: 2, min: 0.1, step: 0.5 });
+      tools.push(h("div", { class: "two" }, field("Hold for (s)", fd),
+        h("button", { style: "margin-top:16px", title: "Hold the frame at the playhead; later clips move later", onclick: () => {
+          if (!inClip(c)) return toast("Move the playhead inside the clip first.");
+          edit([{ op: "freeze", clip: c.id, at: rnd(S.playhead), dur: parseFloat(fd.value) }]);
+        } }, "Freeze frame here")));
+      const st = h("input", { type: "checkbox", checked: !!c.stabilize });
+      st.addEventListener("change", () => edit([{ op: "stabilize", clip: c.id, strength: st.checked ? 0.5 : "off" }]));
+      tools.push(h("label", { class: "chk" }, st, "Stabilize camera shake"));
+      if (c.stabilize) {
+        const sl = h("input", { type: "number", value: c.stabilize.strength, min: 0, max: 1, step: 0.1 });
+        sl.addEventListener("change", () => edit([{ op: "stabilize", clip: c.id, strength: parseFloat(sl.value) }]));
+        tools.push(field("Stabilize strength (0 gentle, 1 locked off)", sl));
+      }
+    }
+    box.append(section("Time", ...tools));
+  }
+
+  if (picture) {
+    const trackers = Object.keys(S.proj.trackers || {});
+    box.append(section("Masks",
+      ...(c.masks || []).map((m) => maskCard(c, m, trackers)),
+      h("button", { onclick: () => edit([{ op: "mask", clip: c.id, effect: "blur" }]) }, "+ Add mask"),
+      h("div", { class: "hint", style: "margin-top:4px" }, "Blur or darken part of the picture, or show the clip only inside a shape. Positions are fractions of the picture.")));
+  }
+  if (videoFile) box.append(trackingSection(c));
+  if ((isText || picture) && Object.keys(S.proj.trackers || {}).length) box.append(attachSection(c));
+
+  if (picture) {  // a transition joins this clip to the clip before it on the same track
+    const prev = S.proj.clips.filter((x) => x.track === c.track && x.type !== "text" && x.start < c.start && x.start + x.dur >= c.start - 0.25)
+      .sort((p, q) => q.start - p.start)[0];
+    if (prev) {
+      const current = (c.transition || {}).type || "dissolve";
+      const sel = h("select", {}, S.meta.transitions.map((t) => h("option", { value: t, selected: t === current }, t)));
+      const dur = h("input", { type: "number", value: (c.transition || {}).dur || 0.6, min: 0.05, step: 0.1 });
+      box.append(section("Transition from " + prev.id,
+        h("div", { class: "two" }, field("Type", sel), field("Length (s)", dur)),
+        h("button", { onclick: () => edit([{ op: "transition", clip_a: prev.id, clip_b: c.id, type: sel.value, dur: parseFloat(dur.value) }]) },
+          c.transition ? "Change transition" : "Apply transition"),
+        h("div", { class: "hint", style: "margin-top:4px" }, "Overlapping types pull this clip earlier and shorten the track by the length.")));
+    }
+  }
+  const chips = [];
+  for (const [prop, pts] of Object.entries(c.keys || {})) for (const p of pts) chips.push(
+    h("span", { class: "chip", title: "Jump the playhead here", onclick: () => setPlayhead(c.start + p[0], true) },
+      `${prop} ${rnd(p[1])} @ ${fmt(c.start + p[0])}`,
+      h("button", { title: "Remove this keyframe", onclick: (e) => { e.stopPropagation(); edit([{ op: "unkey", clip: c.id, prop, at: rnd(c.start + p[0]) }]); } }, "×")));
+  if (chips.length) box.append(section("Keyframes", ...chips,
+    h("div", { class: "hint" }, "Click the diamond beside a value to add a keyframe at the playhead. Values ease between keyframes.")));
+}
+
+/* ------------------------------------------------------------------ side panels */
+function drawProblems() {
+  const box = $("problems"); box.replaceChildren();
+  const { errors, warnings } = S.problems;
+  if (!errors.length && !warnings.length) { box.textContent = "No problems found."; return; }
+  for (const e of errors) box.append(h("div", { class: "problem err" }, e));
+  for (const w of warnings) box.append(h("div", { class: "problem warn" }, w));
+}
+function drawPreview() {
+  const p = S.renders.preview, badge = $("fresh");
+  if (!p) { badge.className = "badge none"; badge.textContent = "No preview yet. Press Render preview."; return; }
+  const src = "/out/preview.mp4?v=" + p.mtime;
+  if (pv.dataset.src !== src) { const t = pv.currentTime; pv.dataset.src = src; pv.src = src; pv.addEventListener("loadedmetadata", () => (pv.currentTime = Math.min(t, pv.duration || 0)), { once: true }); }
+  const fresh = p.rev === S.proj.rev;
+  badge.className = "badge " + (fresh ? "fresh" : "stale");
+  badge.textContent = fresh ? "Preview is up to date" : "Preview is out of date. Render again to see your latest edits.";
+}
+let sfxTimer;
+$("sfxq").addEventListener("input", () => { clearTimeout(sfxTimer); sfxTimer = setTimeout(searchSfx, 250); });
+async function searchSfx() {
+  const q = $("sfxq").value.trim(), box = $("sfxres"), token = ++S.sfxToken; box.replaceChildren();
+  if (!q) return;
+  try {
+    const d = await api("/api/sfx?q=" + encodeURIComponent(q));
+    if (token !== S.sfxToken) return;
+    if (!d.available) { box.append(h("div", { class: "hint" }, d.hint)); return; }
+    if (!d.results.length) { box.append(h("div", { class: "hint" }, "No matches. Try one broader word.")); return; }
+    for (const s of d.results) box.append(h("div", { class: "sfx" },
+      h("span", { class: "n", title: s.name }, s.name.replace(/_344 Audio.*$/, "")), h("span", { class: "hint" }, s.dur.toFixed(1) + "s"),
+      h("button", { title: "Place so its hit lands on the playhead", onclick: async () => { const r = await edit([{ op: "add_sfx", sound: s.id, at: Math.round(S.playhead * 1000) / 1000 }]); if (r) toast("Placed on " + r[0].track, true); } }, "+")));
+  } catch (e) { box.append(h("div", { class: "hint" }, e.message)); }
+}
+
+/* ------------------------------------------------------------------ actions */
+$("undo").onclick = async () => { try { await api("/api/undo", {}); await refresh(true); } catch (e) { toast(e.message); } };
+$("rprev").onclick = () => startRender(true);
+$("rfinal").onclick = () => startRender(false);
+async function startRender(preview) { try { await api("/api/render", { preview }); await refresh(true); } catch (e) { toast(e.message); } }
+$("split").onclick = () => { if (!S.sel) return toast("Select a clip first."); edit([{ op: "split", clip: S.sel, at: Math.round(S.playhead * 1000) / 1000 }]); };
+$("del").onclick = () => { if (!S.sel) return toast("Select a clip first."); const id = S.sel; S.sel = null; edit([{ op: "remove", clip: id, ripple: $("ripple").checked }]); };
+$("imp").onclick = async () => { const p = $("path").value.trim().replace(/^"|"$/g, ""); if (!p) return; const r = await edit([{ op: "import_asset", path: p }]); if (r) $("path").value = ""; };
+$("path").addEventListener("keydown", (e) => { if (e.key === "Enter") $("imp").click(); });
+$("addtxt").onclick = async () => { const t = $("txt").value.trim(); if (!t) return; const r = await edit([{ op: "add_text", text: t, at: Math.round(S.playhead * 1000) / 1000, dur: 3 }]); if (r) $("txt").value = ""; };
+$("zoom").addEventListener("input", () => { S.pps = +$("zoom").value; drawTimeline(); });
+$("fit").onclick = () => {
+  const room = $("tl").clientWidth - GUTTER - 24;
+  S.pps = Math.max(10, Math.min(400, room / Math.max(1, S.proj.duration)));
+  $("zoom").value = S.pps; drawTimeline();
+};
+$("canvas").addEventListener("change", () => { if ($("canvas").value) edit([{ op: "set_settings", preset: $("canvas").value }]); });
+$("lufs").addEventListener("change", () => edit([{ op: "set_settings", master_lufs: $("lufs").value === "" ? "off" : parseFloat($("lufs").value) }]));
+$("srt").addEventListener("change", async (e) => {
+  const f = e.target.files[0]; e.target.value = ""; if (!f) return;
+  const r = await edit([{ op: "import_captions", srt: await f.text() }]);
+  if (r) toast(`Added ${r[0].captions} captions`, true);
+});
+async function upload(files) {
+  for (const f of files) {
+    try { toast("Uploading " + f.name + "...", true); await api("/api/upload?name=" + encodeURIComponent(f.name), f, true); toast("Imported " + f.name, true); }
+    catch (e) { toast(f.name + ": " + e.message); }
+  }
+  await refresh(true);
+}
+$("file").addEventListener("change", (e) => { upload([...e.target.files]); e.target.value = ""; });
+addEventListener("dragover", (e) => { e.preventDefault(); document.body.classList.add("dragging"); });
+addEventListener("dragleave", (e) => { if (!e.relatedTarget) document.body.classList.remove("dragging"); });
+addEventListener("drop", (e) => { e.preventDefault(); document.body.classList.remove("dragging"); if (e.dataTransfer.files.length) upload([...e.dataTransfer.files]); });
+addEventListener("keydown", (e) => {
+  if (/^(INPUT|SELECT|TEXTAREA)$/.test(document.activeElement.tagName) && document.activeElement.type !== "range") return;
+  const fps = S.proj ? S.proj.settings.fps : 30;
+  if (e.key === " ") { e.preventDefault(); pv.paused ? pv.play() : pv.pause(); }
+  else if (e.key === "s" || e.key === "S") $("split").click();
+  else if (e.key === "Delete" || e.key === "Backspace") $("del").click();
+  else if ((e.ctrlKey || e.metaKey) && e.key.toLowerCase() === "z") { e.preventDefault(); $("undo").click(); }
+  else if (e.key === "ArrowLeft") setPlayhead(S.playhead - 1 / fps, true);
+  else if (e.key === "ArrowRight") setPlayhead(S.playhead + 1 / fps, true);
+});
+
+// A drag must never leave the page frozen if the browser loses the pointer.
+for (const ev of ["pointerup", "pointercancel", "blur"]) addEventListener(ev, () => { if (S.dragging) { S.dragging = false; refresh(true); } });
+
+refresh(true); setInterval(() => refresh(false), 1000);
+</script>
+</body>
+</html>

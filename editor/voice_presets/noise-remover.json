@@ -1,0 +1,26 @@
+{
+ "name": "noise remover",
+ "group": "useful",
+ "source": "isaacverse-voice-presets.prfpset",
+ "effects": [
+  {
+   "effect": "DeNoise",
+   "bypassed": false,
+   "filters": [
+    "afftdn=nr=11.9429:nf=-35:tn=1"
+   ],
+   "match": "rough",
+   "notes": [
+    "amount is mapped to the reduction in dB"
+   ],
+   "params": {
+    "Amount": 0.199048,
+    "Make-Up Gain": 0.0,
+    "Auto Gain": 0.0,
+    "Shelve Type": 0.0,
+    "Output Difference Signal": 0.0
+   }
+  }
+ ],
+ "chain": "afftdn=nr=11.9429:nf=-35:tn=1"
+}

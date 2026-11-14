@@ -1,0 +1,34 @@
+{
+ "name": "echo",
+ "group": "useful",
+ "source": "isaacverse-voice-presets.prfpset",
+ "effects": [
+  {
+   "effect": "Studio Reverb",
+   "bypassed": false,
+   "filters": [
+    "aecho=0.9:0.54:104.6867|177.9673|272.1853:0.452|0.3164|0.2034"
+   ],
+   "match": "rough",
+   "notes": [
+    "FFmpeg has no studio reverb; three echo taps approximate the room"
+   ],
+   "params": {
+    "Low Frequency Cut": 0.082915,
+    "High Frequency Cut": 0.289289,
+    "Room Size": 0.622389,
+    "Width": 0.9,
+    "Diffusion": 0.7,
+    "Damping": 0.35,
+    "Decay": 0.336735,
+    "Early Reflections": 0.4,
+    "Early Reflections Delay": 0.5,
+    "Dry Output Level": 0.6,
+    "Wet Output Level": 0.4,
+    "Is Processing": 0.251256,
+    "Number of Channels": 0.0625
+   }
+  }
+ ],
+ "chain": "aecho=0.9:0.54:104.6867|177.9673|272.1853:0.452|0.3164|0.2034"
+}

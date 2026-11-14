@@ -1,0 +1,52 @@
+{
+ "name": "robot voice",
+ "group": "fun",
+ "source": "isaacverse-voice-presets.prfpset",
+ "effects": [
+  {
+   "effect": "Flanger",
+   "bypassed": false,
+   "filters": [
+    "flanger=delay=3.6014:depth=0.0081:regen=53.9856:width=65:speed=0.4298:shape=sinusoidal:phase=45.4026"
+   ],
+   "match": "rough",
+   "notes": [
+    "delay, rate and feedback ranges are assumed"
+   ],
+   "params": {
+    "Initial Delay Time": 0.180473,
+    "Final Delay Time": 0.180069,
+    "Stereo Phasing": 0.454026,
+    "Modulation Rate (Frequency)": 0.033317,
+    "Mix": 0.65,
+    "Feedback": 0.56827,
+    "Inverted Mode": 0.0,
+    "Special Effects Mode": 1.0,
+    "Sinusoidal Mode": 1.0,
+    "Modulation Rate (Beats)": 0.000483
+   }
+  },
+  {
+   "effect": "Pitch Shifter",
+   "bypassed": false,
+   "filters": [
+    "asetrate=33231.34",
+    "aresample=48000",
+    "atempo=1.444419"
+   ],
+   "match": "rough",
+   "notes": [
+    "pitch -6.4 semitones, assuming the control spans +-12 semitones; change the numbers in 'chain' to adjust"
+   ],
+   "params": {
+    "Transpose Ratio": 0.234755,
+    "Precision": 1.0,
+    "Frequency": 0.091782,
+    "Overlapping": 0.601558,
+    "Use Default Setting": 0.75,
+    "Use Positive Cents": 0.25
+   }
+  }
+ ],
+ "chain": "flanger=delay=3.6014:depth=0.0081:regen=53.9856:width=65:speed=0.4298:shape=sinusoidal:phase=45.4026,asetrate=33231.34,aresample=48000,atempo=1.444419"
+}

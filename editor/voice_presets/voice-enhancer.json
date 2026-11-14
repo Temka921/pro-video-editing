@@ -1,0 +1,130 @@
+{
+ "name": "voice enhancer",
+ "group": "useful",
+ "source": "isaacverse-voice-presets.prfpset",
+ "effects": [
+  {
+   "effect": "Single-band Compressor",
+   "bypassed": false,
+   "filters": [
+    "acompressor=threshold=0.31623:ratio=12:attack=0.01:release=100:makeup=1"
+   ],
+   "match": "rough",
+   "notes": [
+    "threshold, attack and release ranges are assumed"
+   ],
+   "params": {
+    "Gain": 0.5,
+    "Threshold": 0.833333,
+    "Ratio": 0.37931,
+    "Attack": 0.0,
+    "Release": 0.02,
+    "Auto Makeup Gain": 0.0
+   }
+  },
+  {
+   "effect": "Dynamics Processing",
+   "bypassed": false,
+   "filters": [
+    "compand=attacks=0.01:decays=0.15:points=-100/-100|-62.973/-86.875|-48.3784/-49.6875|-28.3784/-22.5|0/0:soft-knee=6"
+   ],
+   "match": "close",
+   "notes": [
+    "transfer curve spans -100..0 dB (assumed)"
+   ],
+   "params": {
+    "Level Detector - Attack Time": 0.002,
+    "Level Detector - Release Time": 0.05,
+    "Gain Processor - Attack Time": 0.048,
+    "Gain Processor - Release Time": 0.05,
+    "Lookahead Time": 0.006,
+    "Input Gain": 0.5,
+    "Output Gain": 0.5,
+    "Low Cutoff": 0.0,
+    "High Cutoff": 1.0,
+    "Lock Filter": 0.0,
+    "Number of X/Y Pairs": 0.714286,
+    "Link Channels": 0.0,
+    "Peak/RMS": 1.0,
+    "Envelope Only": 0.0,
+    "Spline Curves": 1.0,
+    "Noise Gating (if expanding more than 50:1)": 0.0,
+    "Current Tab": 1.0,
+    "Location1": 0.0,
+    "Value1": 0.0,
+    "Location2": 0.37027,
+    "Value2": 0.13125,
+    "Location3": 0.516216,
+    "Value3": 0.503125,
+    "Location4": 0.716216,
+    "Value4": 0.775,
+    "Location5": 1.0,
+    "Value5": 1.0,
+    "Location6": 0.5,
+    "Value6": 0.5,
+    "Location7": 0.5,
+    "Value7": 0.5,
+    "Make-Up Gain": 0.0
+   }
+  },
+  {
+   "effect": "Parametric Equalizer",
+   "bypassed": false,
+   "filters": [
+    "highpass=f=40.6758:poles=2",
+    "treble=f=17995.0075:g=4:p=1",
+    "equalizer=f=89.9824:t=q:w=0.6823:g=1.0526",
+    "equalizer=f=294.9754:t=q:w=0.781:g=-0.9211"
+   ],
+   "match": "close",
+   "notes": [],
+   "params": {
+    "Low Shelf Frequency": 0.000834,
+    "Low Shelf Gain": 0.5,
+    "High Shelf Frequency": 0.749792,
+    "High Shelf Gain": 0.6,
+    "EQ Band 1 Center Frequency": 0.001251,
+    "EQ Band 1 Q": 0.0002,
+    "EQ Band 1 Gain": 0.5,
+    "EQ Band 1 Enable": 1.0,
+    "EQ Band 2 Center Frequency": 0.003749,
+    "EQ Band 2 Q": 0.0002,
+    "EQ Band 2 Gain": 0.526316,
+    "EQ Band 2 Enable": 1.0,
+    "EQ Band 3 Center Frequency": 0.012291,
+    "EQ Band 3 Q": 0.0002,
+    "EQ Band 3 Gain": 0.476974,
+    "EQ Band 3 Enable": 1.0,
+    "EQ Band 4 Center Frequency": 0.132611,
+    "EQ Band 4 Q": 0.0002,
+    "EQ Band 4 Gain": 0.5,
+    "EQ Band 4 Enable": 1.0,
+    "EQ Band 5 Center Frequency": 0.532944,
+    "EQ Band 5 Q": 0.0002,
+    "EQ Band 5 Gain": 0.5,
+    "EQ Band 5 Enable": 1.0,
+    "Gain": 0.666667,
+    "ConstantQ": 1.0,
+    "Low Shelf Filter Order": 0.0,
+    "High Shelf Filter Order": 0.0,
+    "Ultra-Quiet Mode": 0.0,
+    "Low Shelf Enable": 1.0,
+    "High Shelf Enable": 1.0,
+    "Original Sample Rate": 0.25,
+    "EQ Band 1 Bandwidth": 0.0025,
+    "EQ Band 2 Bandwidth": 0.005495,
+    "EQ Band 3 Bandwidth": 0.015736,
+    "EQ Band 4 Bandwidth": 0.160001,
+    "EQ Band 5 Bandwidth": 0.64,
+    "High-Pass Filter Enable": 1.0,
+    "High-Pass Cutoff Frequency": 0.001695,
+    "High-Pass Slope": 0.4,
+    "Low-Pass Filter Enable": 0.0,
+    "Low-Pass Cutoff Frequency": 0.749792,
+    "Low-Pass Slope": 0.4,
+    "LowGraphRange": 1.0
+   }
+  }
+ ],
+ "chain": "acompressor=threshold=0.31623:ratio=12:attack=0.01:release=100:makeup=1,compand=attacks=0.01:decays=0.15:points=-100/-100|-62.973/-86.875|-48.3784/-49.6875|-28.3784/-22.5|0/0:soft-knee=6,highpass=f=40.6758:poles=2,treble=f=17995.0075:g=4:p=1,equalizer=f=89.9824:t=q:w=0.6823:g=1.0526,equalizer=f=294.9754:t=q:w=0.781:g=-0.9211"
+}

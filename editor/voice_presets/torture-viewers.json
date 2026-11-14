@@ -1,0 +1,63 @@
+{
+ "name": "torture viewers",
+ "group": "fun",
+ "source": "isaacverse-voice-presets.prfpset",
+ "effects": [
+  {
+   "effect": "Distortion",
+   "bypassed": false,
+   "filters": [
+    "asoftclip=type=tanh:threshold=0.5013"
+   ],
+   "match": "rough",
+   "notes": [
+    "soft clipping stands in for Premiere's smoothing curves"
+   ],
+   "params": {
+    "Positive Smoothing": 0.233,
+    "Negative Smoothing": 0.369,
+    "Time Smoothing": 0.034,
+    "dB Range": 0.415556,
+    "Symmetric": 0.0,
+    "Linear Scale": 0.0,
+    "Post-Filter DC Offset": 1.0
+   }
+  },
+  {
+   "effect": "FFT Filter",
+   "bypassed": false,
+   "filters": [
+    "firequalizer=gain_entry='entry(20,-60);entry(77.9037,-60);entry(131.9891,0);entry(2994.6218,-0.3315);entry(9472.9006,-60);entry(23900,-60)'"
+   ],
+   "match": "close",
+   "notes": [
+    "curve height is mapped to 0 to -60 dB (assumed)"
+   ],
+   "params": {
+    "Splines": 0.0,
+    "FFT Size": 0.061584,
+    "Window Type": 0.375,
+    "Lock": 0.0,
+    "Scale": 0.0,
+    "Frequency Start": 0.000833,
+    "Frequency End": 1.0,
+    "Gain Start": 0.0,
+    "Gain End": 0.0,
+    "Number of X/Y pairs": 0.046875,
+    "X 1": 0.000833,
+    "Y 1": 0.0,
+    "X 2": 0.003246,
+    "Y 2": 0.0,
+    "X 3": 0.0055,
+    "Y 3": 0.751037,
+    "X 4": 0.124776,
+    "Y 4": 0.746888,
+    "X 5": 0.394704,
+    "Y 5": 0.0,
+    "X 6": 1.0,
+    "Y 6": 0.0
+   }
+  }
+ ],
+ "chain": "asoftclip=type=tanh:threshold=0.5013,firequalizer=gain_entry='entry(20,-60);entry(77.9037,-60);entry(131.9891,0);entry(2994.6218,-0.3315);entry(9472.9006,-60);entry(23900,-60)'"
+}

@@ -1,0 +1,31 @@
+{
+ "name": "alien voice",
+ "group": "fun",
+ "source": "isaacverse-voice-presets.prfpset",
+ "effects": [
+  {
+   "effect": "Flanger",
+   "bypassed": false,
+   "filters": [
+    "flanger=delay=2.9303:depth=0.7697:regen=64.6:width=100:speed=5.0169:shape=sinusoidal:phase=23.3333"
+   ],
+   "match": "rough",
+   "notes": [
+    "delay, rate and feedback ranges are assumed"
+   ],
+   "params": {
+    "Initial Delay Time": 0.185,
+    "Final Delay Time": 0.146516,
+    "Stereo Phasing": 0.233333,
+    "Modulation Rate (Frequency)": 0.496659,
+    "Mix": 1.0,
+    "Feedback": 0.68,
+    "Inverted Mode": 0.0,
+    "Special Effects Mode": 1.0,
+    "Sinusoidal Mode": 1.0,
+    "Modulation Rate (Beats)": 1.7e-05
+   }
+  }
+ ],
+ "chain": "flanger=delay=2.9303:depth=0.7697:regen=64.6:width=100:speed=5.0169:shape=sinusoidal:phase=23.3333"
+}

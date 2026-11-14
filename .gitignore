@@ -1,0 +1,26 @@
+# Python
+__pycache__/
+*.pyc
+
+# Never commit audio or sound packs (third-party licenses apply)
+library/
+*.zip
+*.part
+*.wav
+*.flac
+*.mp3
+*.ogg
+*.aif
+*.aiff
+*.m4a
+
+# Catalogs list another party's file names; opt in deliberately (see references/sfx-library-setup.md)
+catalog/*.json
+!catalog/.gitkeep
+
+# Local render output
+out/
+*.mp4
+*.mov
+
+.DS_Store

@@ -1,0 +1,30 @@
+{
+  "default_gain_db": -9,
+  "duck": true,
+  "humanize": true,
+  "cues": [
+    {
+      "id": "REPLACE_WITH_ID_FROM_SFX_SEARCH",
+      "at": 2.5,
+      "sync": "peak",
+      "gain_db": -9,
+      "note": "whoosh peaks exactly on the cut into the title card"
+    },
+    {
+      "id": "REPLACE_WITH_ID_FROM_SFX_SEARCH",
+      "at": 2.5,
+      "sync": "peak",
+      "gain_db": -13,
+      "note": "soft sub impact layered under the whoosh"
+    },
+    {
+      "id": "REPLACE_WITH_ID_FROM_SFX_SEARCH",
+      "at_frame": 150,
+      "sync": "start",
+      "fade_in": 1.0,
+      "fade_out": 1.5,
+      "gain_db": -24,
+      "note": "room tone bed under the whole scene, placed by frame (needs 'fps' or a readable video fps)"
+    }
+  ]
+}

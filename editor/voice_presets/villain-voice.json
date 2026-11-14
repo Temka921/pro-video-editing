@@ -1,0 +1,52 @@
+{
+ "name": "villain voice",
+ "group": "fun",
+ "source": "isaacverse-voice-presets.prfpset",
+ "effects": [
+  {
+   "effect": "Flanger",
+   "bypassed": false,
+   "filters": [
+    "flanger=delay=0.5056:depth=0.5523:regen=0:width=45:speed=1.2549:shape=sinusoidal:phase=50"
+   ],
+   "match": "rough",
+   "notes": [
+    "delay, rate and feedback ranges are assumed"
+   ],
+   "params": {
+    "Initial Delay Time": 0.025278,
+    "Final Delay Time": 0.052892,
+    "Stereo Phasing": 0.5,
+    "Modulation Rate (Frequency)": 0.116652,
+    "Mix": 0.45,
+    "Feedback": 0.0,
+    "Inverted Mode": 0.0,
+    "Special Effects Mode": 1.0,
+    "Sinusoidal Mode": 1.0,
+    "Modulation Rate (Beats)": 0.000126
+   }
+  },
+  {
+   "effect": "Pitch Shifter",
+   "bypassed": false,
+   "filters": [
+    "asetrate=28217.71",
+    "aresample=48000",
+    "atempo=1.701059"
+   ],
+   "match": "rough",
+   "notes": [
+    "pitch -9.2 semitones, assuming the control spans +-12 semitones; change the numbers in 'chain' to adjust"
+   ],
+   "params": {
+    "Transpose Ratio": 0.116783,
+    "Precision": 1.0,
+    "Frequency": 0.09893,
+    "Overlapping": 0.639023,
+    "Use Default Setting": 0.75,
+    "Use Positive Cents": 0.25
+   }
+  }
+ ],
+ "chain": "flanger=delay=0.5056:depth=0.5523:regen=0:width=45:speed=1.2549:shape=sinusoidal:phase=50,asetrate=28217.71,aresample=48000,atempo=1.701059"
+}

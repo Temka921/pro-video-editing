@@ -1,0 +1,213 @@
+{
+ "name": "movie trailer voice",
+ "group": "useful",
+ "source": "isaacverse-voice-presets.prfpset",
+ "effects": [
+  {
+   "effect": "Hard Limiter",
+   "bypassed": false,
+   "filters": [
+    "alimiter=limit=0.9333:level=disabled"
+   ],
+   "match": "rough",
+   "notes": [
+    "only the ceiling is applied; input boost, look-ahead and release use FFmpeg defaults"
+   ],
+   "params": {
+    "Maximum Amplitude": 0.97,
+    "Input Boost": 0.66,
+    "Look-Ahead Time": 0.133333,
+    "Release Time": 0.375,
+    "Link Channels": 1.0,
+    "Decay to Ceiling": 1.0,
+    "Limit True Peak": 0.0
+   }
+  },
+  {
+   "effect": "Amplify",
+   "bypassed": false,
+   "filters": [
+    "volume=0.625dB"
+   ],
+   "match": "close",
+   "notes": [],
+   "params": {
+    "Left": 0.6875,
+    "Right": 0.6875
+   }
+  },
+  {
+   "effect": "Single-band Compressor",
+   "bypassed": false,
+   "filters": [
+    "acompressor=threshold=0.31623:ratio=12:attack=0.01:release=100:makeup=1"
+   ],
+   "match": "rough",
+   "notes": [
+    "threshold, attack and release ranges are assumed"
+   ],
+   "params": {
+    "Gain": 0.5,
+    "Threshold": 0.833333,
+    "Ratio": 0.37931,
+    "Attack": 0.0,
+    "Release": 0.02,
+    "Auto Makeup Gain": 0.0
+   }
+  },
+  {
+   "effect": "DeNoise",
+   "bypassed": false,
+   "filters": [
+    "afftdn=nr=8.6246:nf=-35:tn=1"
+   ],
+   "match": "rough",
+   "notes": [
+    "amount is mapped to the reduction in dB"
+   ],
+   "params": {
+    "Amount": 0.143743,
+    "Make-Up Gain": 0.0,
+    "Auto Gain": 0.0,
+    "Shelve Type": 0.0,
+    "Output Difference Signal": 0.0
+   }
+  },
+  {
+   "effect": "DeEsser",
+   "bypassed": false,
+   "filters": [
+    "deesser=i=0.4417:m=0.5:f=0.3913"
+   ],
+   "match": "rough",
+   "notes": [
+    "FFmpeg's de-esser has fewer controls than Premiere's"
+   ],
+   "params": {
+    "Threshold": 0.558302,
+    "Attack": 0.19984,
+    "Release": 0.183673,
+    "Center Frequency": 0.391304,
+    "Bandwidth": 0.391892,
+    "Output Sibilance Only": 0.0,
+    "Mode": 1.0
+   }
+  },
+  {
+   "effect": "Parametric Equalizer",
+   "bypassed": false,
+   "filters": [
+    "highpass=f=51.2136:poles=2",
+    "bass=f=81.5202:g=2.6316:p=1",
+    "treble=f=12213.5882:g=5.2632:p=1",
+    "equalizer=f=287.8529:t=q:w=0.5849:g=-1.25",
+    "equalizer=f=4252.1056:t=q:w=0.8301:g=-0.1974"
+   ],
+   "match": "close",
+   "notes": [],
+   "params": {
+    "Low Shelf Frequency": 0.003397,
+    "Low Shelf Gain": 0.565789,
+    "High Shelf Frequency": 0.5089,
+    "High Shelf Gain": 0.631579,
+    "EQ Band 1 Center Frequency": 0.001251,
+    "EQ Band 1 Q": 0.0002,
+    "EQ Band 1 Gain": 0.5,
+    "EQ Band 1 Enable": 0.0,
+    "EQ Band 2 Center Frequency": 0.007506,
+    "EQ Band 2 Q": 0.0002,
+    "EQ Band 2 Gain": 0.5,
+    "EQ Band 2 Enable": 0.0,
+    "EQ Band 3 Center Frequency": 0.011994,
+    "EQ Band 3 Q": 0.00015,
+    "EQ Band 3 Gain": 0.46875,
+    "EQ Band 3 Enable": 1.0,
+    "EQ Band 4 Center Frequency": 0.177171,
+    "EQ Band 4 Q": 0.0002,
+    "EQ Band 4 Gain": 0.495066,
+    "EQ Band 4 Enable": 1.0,
+    "EQ Band 5 Center Frequency": 0.532944,
+    "EQ Band 5 Q": 0.0002,
+    "EQ Band 5 Gain": 0.5,
+    "EQ Band 5 Enable": 1.0,
+    "Gain": 0.666667,
+    "ConstantQ": 1.0,
+    "Low Shelf Filter Order": 0.0,
+    "High Shelf Filter Order": 0.0,
+    "Ultra-Quiet Mode": 1.0,
+    "Low Shelf Enable": 1.0,
+    "High Shelf Enable": 1.0,
+    "Original Sample Rate": 0.25,
+    "EQ Band 1 Bandwidth": 0.0025,
+    "EQ Band 2 Bandwidth": 0.01,
+    "EQ Band 3 Bandwidth": 0.020508,
+    "EQ Band 4 Bandwidth": 0.213428,
+    "EQ Band 5 Bandwidth": 0.64,
+    "High-Pass Filter Enable": 1.0,
+    "High-Pass Cutoff Frequency": 0.002134,
+    "High-Pass Slope": 0.4,
+    "Low-Pass Filter Enable": 0.0,
+    "Low-Pass Cutoff Frequency": 0.749792,
+    "Low-Pass Slope": 0.4,
+    "LowGraphRange": 1.0
+   }
+  },
+  {
+   "effect": "Parametric Equalizer",
+   "bypassed": false,
+   "filters": [
+    "treble=f=10285.223:g=-1.4474:p=1",
+    "equalizer=f=775.3726:t=q:w=0.813:g=-3.75"
+   ],
+   "match": "close",
+   "notes": [],
+   "params": {
+    "Low Shelf Frequency": 0.000834,
+    "Low Shelf Gain": 0.5,
+    "High Shelf Frequency": 0.428551,
+    "High Shelf Gain": 0.463816,
+    "EQ Band 1 Center Frequency": 0.001251,
+    "EQ Band 1 Q": 0.0002,
+    "EQ Band 1 Gain": 0.5,
+    "EQ Band 1 Enable": 1.0,
+    "EQ Band 2 Center Frequency": 0.007506,
+    "EQ Band 2 Q": 0.0002,
+    "EQ Band 2 Gain": 0.5,
+    "EQ Band 2 Enable": 1.0,
+    "EQ Band 3 Center Frequency": 0.032307,
+    "EQ Band 3 Q": 0.0002,
+    "EQ Band 3 Gain": 0.40625,
+    "EQ Band 3 Enable": 1.0,
+    "EQ Band 4 Center Frequency": 0.132611,
+    "EQ Band 4 Q": 0.0002,
+    "EQ Band 4 Gain": 0.5,
+    "EQ Band 4 Enable": 1.0,
+    "EQ Band 5 Center Frequency": 0.532944,
+    "EQ Band 5 Q": 0.0002,
+    "EQ Band 5 Gain": 0.5,
+    "EQ Band 5 Enable": 1.0,
+    "Gain": 0.666667,
+    "ConstantQ": 1.0,
+    "Low Shelf Filter Order": 0.0,
+    "High Shelf Filter Order": 0.0,
+    "Ultra-Quiet Mode": 0.0,
+    "Low Shelf Enable": 1.0,
+    "High Shelf Enable": 1.0,
+    "Original Sample Rate": 0.25,
+    "EQ Band 1 Bandwidth": 0.0025,
+    "EQ Band 2 Bandwidth": 0.01,
+    "EQ Band 3 Bandwidth": 0.039736,
+    "EQ Band 4 Bandwidth": 0.160001,
+    "EQ Band 5 Bandwidth": 0.64,
+    "High-Pass Filter Enable": 0.0,
+    "High-Pass Cutoff Frequency": 0.000834,
+    "High-Pass Slope": 0.4,
+    "Low-Pass Filter Enable": 0.0,
+    "Low-Pass Cutoff Frequency": 0.749792,
+    "Low-Pass Slope": 0.4,
+    "LowGraphRange": 1.0
+   }
+  }
+ ],
+ "chain": "alimiter=limit=0.9333:level=disabled,volume=0.625dB,acompressor=threshold=0.31623:ratio=12:attack=0.01:release=100:makeup=1,afftdn=nr=8.6246:nf=-35:tn=1,deesser=i=0.4417:m=0.5:f=0.3913,highpass=f=51.2136:poles=2,bass=f=81.5202:g=2.6316:p=1,treble=f=12213.5882:g=5.2632:p=1,equalizer=f=287.8529:t=q:w=0.5849:g=-1.25,equalizer=f=4252.1056:t=q:w=0.8301:g=-0.1974,treble=f=10285.223:g=-1.4474:p=1,equalizer=f=775.3726:t=q:w=0.813:g=-3.75"
+}

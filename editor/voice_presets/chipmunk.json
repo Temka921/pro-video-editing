@@ -1,0 +1,29 @@
+{
+ "name": "chipmunk",
+ "group": "fun",
+ "source": "isaacverse-voice-presets.prfpset",
+ "effects": [
+  {
+   "effect": "Pitch Shifter",
+   "bypassed": false,
+   "filters": [
+    "asetrate=63353.58",
+    "aresample=48000",
+    "atempo=0.757653"
+   ],
+   "match": "rough",
+   "notes": [
+    "pitch +4.8 semitones, assuming the control spans +-12 semitones; change the numbers in 'chain' to adjust"
+   ],
+   "params": {
+    "Transpose Ratio": 0.700196,
+    "Precision": 1.0,
+    "Frequency": 0.087122,
+    "Overlapping": 0.545238,
+    "Use Default Setting": 0.75,
+    "Use Positive Cents": 0.25
+   }
+  }
+ ],
+ "chain": "asetrate=63353.58,aresample=48000,atempo=0.757653"
+}

@@ -1,0 +1,63 @@
+{
+ "name": "muffled voice",
+ "group": "useful",
+ "source": "isaacverse-voice-presets.prfpset",
+ "effects": [
+  {
+   "effect": "Parametric Equalizer",
+   "bypassed": false,
+   "filters": [
+    "treble=f=8464.536:g=-17.4737:p=2"
+   ],
+   "match": "close",
+   "notes": [],
+   "params": {
+    "Low Shelf Frequency": 0.000834,
+    "Low Shelf Gain": 0.5,
+    "High Shelf Frequency": 0.352689,
+    "High Shelf Gain": 0.063158,
+    "EQ Band 1 Center Frequency": 0.001251,
+    "EQ Band 1 Q": 0.0002,
+    "EQ Band 1 Gain": 0.5,
+    "EQ Band 1 Enable": 0.0,
+    "EQ Band 2 Center Frequency": 0.007506,
+    "EQ Band 2 Q": 0.0002,
+    "EQ Band 2 Gain": 0.5,
+    "EQ Band 2 Enable": 0.0,
+    "EQ Band 3 Center Frequency": 0.032527,
+    "EQ Band 3 Q": 0.0002,
+    "EQ Band 3 Gain": 0.5,
+    "EQ Band 3 Enable": 0.0,
+    "EQ Band 4 Center Frequency": 0.132611,
+    "EQ Band 4 Q": 0.0002,
+    "EQ Band 4 Gain": 0.5,
+    "EQ Band 4 Enable": 0.0,
+    "EQ Band 5 Center Frequency": 0.472686,
+    "EQ Band 5 Q": 0.0002,
+    "EQ Band 5 Gain": 0.5,
+    "EQ Band 5 Enable": 0.0,
+    "Gain": 0.666667,
+    "ConstantQ": 1.0,
+    "Low Shelf Filter Order": 0.0,
+    "High Shelf Filter Order": 1.0,
+    "Ultra-Quiet Mode": 0.0,
+    "Low Shelf Enable": 0.0,
+    "High Shelf Enable": 1.0,
+    "Original Sample Rate": 0.25,
+    "EQ Band 1 Bandwidth": 0.0025,
+    "EQ Band 2 Bandwidth": 0.01,
+    "EQ Band 3 Bandwidth": 0.04,
+    "EQ Band 4 Bandwidth": 0.16,
+    "EQ Band 5 Bandwidth": 0.56775,
+    "High-Pass Filter Enable": 0.0,
+    "High-Pass Cutoff Frequency": 0.000766,
+    "High-Pass Slope": 0.4,
+    "Low-Pass Filter Enable": 0.0,
+    "Low-Pass Cutoff Frequency": 0.688821,
+    "Low-Pass Slope": 0.4,
+    "LowGraphRange": 0.0
+   }
+  }
+ ],
+ "chain": "treble=f=8464.536:g=-17.4737:p=2"
+}
